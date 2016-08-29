@@ -1,0 +1,608 @@
+#================================PART2----SIMPLE- PARTITION ALGORITHM===========================
+#===================================small functions================
+
+sub_matrix<-function(matrix, r1,r, c1,c){
+        m<-matrix[r1:r,c1:c]
+        return(m)
+}
+create_simple_hap<-function( r1,r, c1,c, genotype){
+        g<-genotype
+        hap<-c()
+        newhap1<-c()
+        newhap2<-c()
+        for(i in 1:r){
+                for(j in 1:2){
+                        if(g[i,j]==0){
+                                newhap1<-c(newhap1, 0)
+                                newhap2<-c(newhap2, 0)
+                        }
+                        else if(g[i,j]==2)
+                        {
+                                newhap1<-c(newhap1, 1)
+                                newhap2<-c(newhap2, 1)
+                        }
+                        else{
+                                newhap1<-c(newhap1,3)
+                                newhap2<-c(newhap2,3)
+                        }
+                }
+                hap<-c(hap, newhap1)
+                hap<-c(hap, newhap2)
+                newhap1<-c()
+                newhap2<-c()
+        }
+        new<-hap
+        return(new)
+}
+
+row_number_converter<-function(h_row){
+        if(h_row%%2==0){
+                g_row<-h_row/2
+        }
+        else{
+                g_row<-(h_row/2)+0.5
+        }
+        return(g_row)
+}
+
+check_ambiguous_slot_number<-function(haplotypes){
+        count<-0
+        haplotypes<-matrix(haplotypes,nrow=length(haplotypes)/2, ncol = 2, byrow = TRUE)
+        for(i in 1:2){
+                if(haplotypes[1,i]==3){
+                        count<-count+1
+                }
+        }
+        return(count)   
+}
+
+crossmatch<-function(signatures, sub){
+        s<-signatures
+        num<-nrow(s)
+        g<-sub
+        solution<-c()
+        for( i in 1:num)
+        {
+                for (j in i:num){
+                        match<-TRUE
+                        
+                        for(k in 1:2){
+                                 if(!(s[i,k]==0&s[j,k]==0&g[k]==0)){
+                                        
+                                        if(!(s[i,k]==1&s[j,k]==1&g[k]==2)){
+                                                
+                                                if(!((s[i,k]!=s[j,k])&g[k]==1)){
+                                                        
+                                                        match<-FALSE
+                                                        
+                                                }
+                                        }
+                                }
+                        }
+                        if(match==TRUE){
+                                s1<-as.vector(s[i,])
+                                s2<-as.vector(s[j,])
+                                solution<-c(solution,s1,s2)
+                                return(solution)
+                        }
+                }
+        }
+        
+        return(solution)
+        
+}
+
+create_prefix_list<-function(pre_matrix){
+         key<-c()
+        for(i in 1:nrow(pre_matrix)){
+                k<-pre_matrix[i,]
+                k<-as.vector(k)
+                k<-as.character(k)
+                k<-toString(k)
+                key<-c(key,k)
+        }
+         value<-c(1:nrow(pre_matrix))
+        names(value)<-key  
+        list<-value
+        return(list)
+        
+}
+
+find_potential_solutions<-function(prefix,prev_matrix, ambiguous_list){
+        potential<-c()
+        for(i in 1:nrow(prev_matrix)){
+                t<-as.vector(prev_matrix[i,])
+                t<-as.character(t)
+                t<-toString(t)
+                if((isTRUE(all.equal(prefix,t)))&(is.element(i,ambiguous_list)==FALSE)){
+                        potential<-c(potential,i)  #store the row number of potential 
+                }
+        }
+        return(potential)
+}
+
+crossmatch_version_2<-function(potential, current_h, current_g,standard){
+        h<-current_h
+        g<-current_g
+        solution<-c()
+        for( i in 1:length(potential))
+        {
+                for (j in (i+1):length(potential)){
+                        p1<-potential[i]
+                        p2<-potential[j]
+                        p3<-row_number_converter(standard)
+                        
+                        if(p1==potential[length(potential)]){
+                                match<-FALSE
+                                break
+                        }
+                        match<-TRUE
+                        for(k in 1:ncol(g)){
+                                
+                                sum<-h[p1,k]+h[p2,k]
+                                
+                                if(sum!=g[p3,k]){
+                                        match<-FALSE
+                                        break
+                                }
+                        }
+                        if(match==FALSE){
+                                next
+                        }
+                        if(match==TRUE){
+                                s1<-as.vector(h[p1,])
+                                s2<-as.vector(h[p2,])
+                                solution<-c(solution,s1)
+                                solution<-c(solution,s2)
+                                 return(solution)
+                        }
+                }
+        }
+        return(solution)
+        
+}
+
+one_slot_prime_search<-function(prefix, old_matrix,solved,raw_hap,position){
+        prefix<-names(prefix)
+        for(j in 1:nrow(old_matrix)){
+                t<-as.vector(old_matrix[j,])
+                t<-as.character(t)
+                t<-toString(t)
+                if((raw_hap[position,1]!=raw_hap[j,1]) &(raw_hap[position,2]!=raw_hap[j,2] )){
+                        if(j==nrow(old_matrix)){
+                                break
+                        }
+                        next
+                }
+                if(is.element(j,solved)&(isTRUE(all.equal(prefix,t)))){
+                        return(j)
+                        }
+        }
+        return(0)
+        
+}
+
+check_solved<-function(raw_hap){
+        solved<-c()
+        for(i in 1:nrow(raw_hap)){
+                count<-check_ambiguous_slot_number(raw_hap[i,])
+                if(count==0){
+                        solved<-c(solved,i)
+                }
+        }
+        return(solved)
+}
+
+naive_match<-function(out,inside, raw_hap,sub_geno,g_row){
+        r<-c()
+        for(i in 1:length(out)){
+                for(j in 1:length(inside)){
+                        p1<-out[i]
+                        p2<-inside[j]
+                        if(raw_hap[p1,1]+raw_hap[p2,1]==sub_geno[g_row,1]){
+                                if(raw_hap[p1,2]+raw_hap[p2,2]==sub_geno[g_row,2]){
+                                        r<-c(r,out[i])  
+                                        r<-c(r,inside[j])
+                                        return(r)
+                                }
+                        }
+                        
+                }
+        }
+        return(r)
+}
+#========================SIMPLE-PARTITION METHOD:  large functions=======================
+#main function of partition_algorithm
+pre_main<-function(whole_matrix,r1,r,c1,c){
+        sub<-sub_matrix(whole_matrix,r1,r,c1,c)
+        raw_hap<-create_simple_hap(r1,r,c1,c,sub)
+        raw_hap<-matrix(raw_hap,nrow = r*2,ncol = 2, byrow = TRUE)
+#if solved, make the two numbers into a signature, and put them into a string vector 
+        #create single row of hap 
+        signature_set<-c()
+        ambiguous_list<-c()
+        timer<-0
+        for(i in 1:nrow(raw_hap)){
+                timer<-timer+1
+          count<-check_ambiguous_slot_number(raw_hap[i,])
+                if(count==0){
+                        signature<-raw_hap[i,]
+                        signature<-as.vector(signature)
+                        signature_set<-c(signature_set,signature)
+                
+                }
+                if(count==1){
+                        
+                        g_row<-row_number_converter(i)
+                        #get genotypes, now you want to compare with the genotypes and replace the haplotype with new_hap
+                        for(j in 1:2){
+                                if(sub[g_row,j]==0){
+                                        
+                                        raw_hap[i,j]<-0
+                                        raw_hap[i+1,j]<-0
+                                }
+                                else if(sub[g_row,j]==2)
+                                {
+                                        
+                                        raw_hap[i,j]<-1
+                                        raw_hap[i+1,j]<-1
+                                        
+                                }
+                                else{
+                                        
+                                        raw_hap[i,j]<-0
+                                        raw_hap[i+1,j]<-1
+                                        
+                                }
+                        }
+                }
+                if(count==2){
+                        #want to do cross match, put it in to ambiguous vector first, record the row number 
+                        ambiguous_list<-c(ambiguous_list,i)
+                        
+                }
+        }
+        
+        if(length(ambiguous_list)==0){
+                return(raw_hap)
+        }
+        for(m in 1:length(ambiguous_list)){
+                m<-1
+                p<-ambiguous_list[m]
+                p<-row_number_converter(p)
+                if(is.matrix(signature_set)==FALSE){
+                        signature_set<-matrix(signature_set,nrow=length(signature_set)/2,ncol = 2,byrow = TRUE)
+                }
+                
+                signature_set<-unique.matrix(signature_set)
+                solution<-crossmatch(signature_set,sub[p,])
+                
+                raw_hap[ambiguous_list[m],1]<-solution[1]
+                raw_hap[ambiguous_list[m],2]<-solution[2]
+                raw_hap[ambiguous_list[m+1],1]<-solution[3]
+                raw_hap[ambiguous_list[m+1],2]<-solution[4]
+                
+                ambiguous_list<-ambiguous_list[-m]
+                ambiguous_list<-ambiguous_list[-m]
+                
+                if(length(ambiguous_list)==0){
+                        break
+                }
+        }
+        
+        return(raw_hap)
+        
+}
+
+main<-function(old_matrix,genotypes,r1,r,c1,c){
+        one_slot_unsolved<-c()
+        matrix_prev<-old_matrix
+        list<-create_prefix_list(matrix_prev)
+        sub<-sub_matrix(genotypes,r1,r,c1,c)
+        raw_hap<-create_simple_hap(r1,r,c1,c,sub)
+        raw_hap<-matrix(raw_hap,nrow = r*2,ncol = 2, byrow = TRUE)
+        signature_set<-c()
+        ambiguous_list<-c()
+        
+        solved<-check_solved(raw_hap)
+        for(i in 1:nrow(raw_hap)){
+                count<-check_ambiguous_slot_number(raw_hap[i,])
+                if(count==0){
+                        next
+                }
+                if(count==1){
+                        
+                        if(i%%2==0){
+                                next
+                        }
+                        
+                        
+                        g_row<-row_number_converter(i)
+                        prefix_1<-list[i]
+                        prefix_2<-list[i+1]
+                        t1<-one_slot_prime_search(prefix_1,old_matrix,solved,raw_hap,i)
+                        
+                        if(i+1<=nrow(raw_hap)){
+                                t2<-one_slot_prime_search(prefix_2,old_matrix,solved,raw_hap,i+1)
+                        }
+                         if(i%%2==0){
+                                t2<-0
+                        }
+                        
+                        t<-0
+                        current_i<-i  
+                        if(t1!=0){
+                                t<-t1
+                                i<-i
+                        }
+                        if(t1==0 & t2!=0){
+                                t<-t2
+                                i<-i+1
+                        }
+                        if(t!=0){
+                                for(k in 1:2){
+                                        if((raw_hap[i,1]!=raw_hap[t,1]) &(raw_hap[i,2]!=raw_hap[t,2] )){
+                                                
+                                                
+                                                t<-0
+                                        }
+                                        if(t==0){
+                                                break
+                                        }
+                                        raw_hap[i,k]<-raw_hap[t,k]
+                                      
+                                }
+                                
+                                if((i==current_i)&(t!=0)){
+                                        
+                                        s<-as.vector(sub[g_row,])
+                                        s<-matrix(s,ncol = 2,nrow = 1, byrow = TRUE)
+                                        raw_hap[i+1,1]<-as.numeric(s[1,1])-as.numeric(raw_hap[i,1])
+                                        raw_hap[i+1,2]<-as.numeric(s[1,2])-as.numeric(raw_hap[i,2])
+                                        solved<-c(solved,current_i)
+                                        solved<-c(solved,current_i+1)
+                                        
+                                        next
+                                }
+                                if((t!=0)&i>current_i){
+                                        
+                                        raw_hap[i-1,1]<-as.numeric(sub[g_row,1])-as.numeric(raw_hap[i,1])
+                                        raw_hap[i-1,2]<-as.numeric(sub[g_row,2])-as.numeric(raw_hap[i,2])
+                                        solved<-c(solved,current_i)
+                                        solved<-c(solved,current_i+1)
+                                        
+                                        next
+                                }
+                        }
+                        if(t==0){
+                                one_slot_unsolved<-c(one_slot_unsolved,current_i)
+                                
+                                next
+                        }
+                        
+                        
+                }
+                if(count==2){
+                        ambiguous_list<-c(ambiguous_list,i)
+                        
+                        
+                }
+        }
+        if(length(one_slot_unsolved)!=0){
+                for(n in 1:length(one_slot_unsolved)){
+                      
+                        p<-one_slot_unsolved[n]
+                        prefix<-list[p]
+                        t<-one_slot_prime_search(prefix,old_matrix,solved,raw_hap,p)
+                        g_row<-row_number_converter(p)
+                        
+                        if(t!=0){
+                                for(k in 1:2){
+                                        raw_hap[p,k]<-raw_hap[t,k]
+                                        
+                                }
+                                solved<-c(solved,p)
+                                if(p%%2==0 & is.element((p-1),one_slot_unsolved)){
+                                        raw_hap[p-1,1]<-sub[g_row,1]-raw_hap[p,1]
+                                        raw_hap[p-1,2]<-sub[g_row,2]-raw_hap[p,2]  
+                                        one_slot_unsolved[-1]
+                                        one_slot_unsolved[-1]
+                                }
+                        }
+                        if(t==0){
+                                p<-one_slot_unsolved[1]
+                                if(raw_hap[p,1]==3){
+                                        raw_hap[p,1]<-1
+                                        raw_hap[p+1,1]<-0
+                                        
+                                }
+                                if(raw_hap[p,2]==3){
+                                        raw_hap[p,2]<-1
+                                        raw_hap[p+1,2]<-0
+                                }
+                                
+                                
+                        }
+                }
+        }
+        
+        matrix_new<-raw_hap
+        combined_matrix<-cbind2(matrix_prev,matrix_new)
+        current_geno<-sub_matrix(genotypes,1,r,1,c)
+        
+        if(length(ambiguous_list)==0){
+                return(combined_matrix)
+        }
+        for(m in 1:length(ambiguous_list)){
+                
+                p_1<-ambiguous_list[1]
+                #get prefix
+                prefix_1<-list[p_1]
+                prefix_1<-names(prefix_1)
+                prefix_2<-list[p_1+1]
+                prefix_2<-names(prefix_2)
+                p<-row_number_converter(p_1)
+               
+                potential_1<-find_potential_solutions(prefix_1,matrix_prev, ambiguous_list)
+                potential_2<-find_potential_solutions(prefix_2,matrix_prev, ambiguous_list)
+                if(length(potential_1)!=0&length(potential_2)!=0){
+                        if(length(potential_1)>=length(potential_2)){
+                                out<-potential_1
+                                inside<-potential_2
+                        }
+                        else{
+                                out<-potential_2
+                                inside<-potential_1
+                        }
+                        
+                        
+                        solution<-naive_match(out,inside,raw_hap,sub,p)
+                        
+                        if(all.equal(potential_1,out)==TRUE){
+                                p1<-solution[1]
+                                p2<-solution[2]
+                                
+                                raw_hap[p_1,1]<-raw_hap[p1,1]
+                                raw_hap[p_1,2]<-raw_hap[p1,2]
+                                raw_hap[p_1+1,1]<-raw_hap[p2,1]
+                                raw_hap[p_1+1,2]<-raw_hap[p2,2]
+                                
+                                
+                                
+                                matrix_new<-raw_hap
+                                combined_matrix<-cbind2(matrix_prev,matrix_new)
+                                ambiguous_list<-ambiguous_list[-1]
+                                ambiguous_list<-ambiguous_list[-1]
+                                if(length(ambiguous_list)==0){
+                                        break
+                                }
+                                next
+                        }
+                        
+                        else{
+                                p1<-solution[2]
+                                p2<-solution[1]
+                                
+                                raw_hap[p_1,1]<-raw_hap[p1,1]
+                                raw_hap[p_1,2]<-raw_hap[p1,2]
+                                raw_hap[p_1+1,1]<-raw_hap[p2,1]
+                                raw_hap[p_1+1,2]<-raw_hap[p2,2]
+                                
+                                matrix_new<-raw_hap
+                                
+                                combined_matrix<-cbind2(matrix_prev,matrix_new)
+                                
+                                
+                                ambiguous_list<-ambiguous_list[-1]
+                                ambiguous_list<-ambiguous_list[-1]
+                                if(length(ambiguous_list)==0){
+                                        break
+                                }
+                                next
+                                
+                        }    
+                        
+                        
+                }
+                if(length(potential_1)==0){
+                         combined_matrix[ambiguous_list[1],c1]<-0
+                        combined_matrix[ambiguous_list[1],c]<-0
+                        combined_matrix[ambiguous_list[1+1],c1]<-1
+                        combined_matrix[ambiguous_list[1+1],c]<-1
+                        ambiguous_list<-ambiguous_list[-1]
+                        ambiguous_list<-ambiguous_list[-1]
+                        
+                        if(length(ambiguous_list)==0){
+                                break
+                        }
+                        
+                        next
+                }
+                if(length(solution)==0){
+                        s<-potential[1]
+                        solution<-combined_matrix[s,]
+                        solution<-as.vector(solution)
+                        
+                        for(i in 1:(length(solution))){
+                                combined_matrix[ambiguous_list[1],i]<-solution[i]
+                                
+                        }
+                        
+                        g_row<-row_number_converter(ambiguous_list[1])
+                        curr<-as.vector(current_geno[g_row,])
+                        curr<-matrix(curr,ncol = length(curr),nrow = 1)
+                        
+                        for(k in 1:ncol(combined_matrix)){
+                                
+                                if(curr[k]==0){
+                                        
+                                        combined_matrix[ambiguous_list[1+1],k]<-0
+                                }
+                                else if(curr[k]==2)
+                                {
+                                        combined_matrix[ambiguous_list[1+1],k]<-1
+                                        
+                                }
+                                else{
+                                        combined_matrix[ambiguous_list[1+1],k]<-as.numeric(curr[k])-as.numeric(combined_matrix[ambiguous_list[1],k])
+                                        
+                                }
+                        }
+                        
+                        ambiguous_list<-ambiguous_list[-1]
+                        ambiguous_list<-ambiguous_list[-1]
+                        if(length(ambiguous_list)==0){
+                                break
+                        }
+                        else{
+                                next
+                        }
+                        
+                }
+                
+                
+                for(i in 1:(length(solution)/2)){
+                        combined_matrix[ambiguous_list[1],i]<-solution[i]
+                        
+                }
+                
+                k<-1
+                for(j in ((length(solution)/2)+1):length(solution)){
+                        
+                        combined_matrix[ambiguous_list[1+1],k]<-solution[j]
+                        k<-k+1
+                        
+                }
+                ambiguous_list<-ambiguous_list[-1]
+                ambiguous_list<-ambiguous_list[-1]
+                
+                if(length(ambiguous_list)==0){
+                        break
+                }
+        }
+        
+        
+        return(combined_matrix)
+        
+        
+}
+
+leader_function<-function(genotypes){
+        total_row<-nrow(genotypes)
+        total_col<-ncol(genotypes)
+        seed_matrix<-pre_main(genotypes,1,total_row,1,2)
+        old_matrix<-seed_matrix
+        
+        for(i in 3:total_col){
+                
+                if(i%%2==0){
+                        next
+                }
+                
+                now<-main(old_matrix,genotypes,1,total_row,i,i+1)
+                old_matrix<-now
+                
+        }
+        now<-unique.matrix(now)
+        return(now)
+}
