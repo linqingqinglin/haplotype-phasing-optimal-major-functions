@@ -1,0 +1,414 @@
+#calculate standard deviation
+
+#data read in 
+
+setwd('/Users/weilinqing/Desktop/Linqing')
+methylation<-read.csv("annotated_mm10_allCommonMeth_CtrlIsoSeparate.csv")
+library(gdata)
+enhancer<-read.xls("enhancer.xlsx",sheet = 1)
+
+#subseting
+
+chr_1<-methylation[which(methylation$chr=="chr1"),]
+chr_2<-methylation[which(methylation$chr=="chr2"),]
+chr_3<-methylation[which(methylation$chr=="chr3"),]
+chr_4<-methylation[which(methylation$chr=="chr4"),]
+chr_5<-methylation[which(methylation$chr=="chr5"),]
+chr_6<-methylation[which(methylation$chr=="chr6"),]
+chr_7<-methylation[which(methylation$chr=="chr7"),]
+chr_8<-methylation[which(methylation$chr=="chr8"),]
+chr_9<-methylation[which(methylation$chr=="chr9"),]
+chr_10<-methylation[which(methylation$chr=="chr10"),]
+chr_11<-methylation[which(methylation$chr=="chr11"),]
+chr_12<-methylation[which(methylation$chr=="chr12"),]
+chr_13<-methylation[which(methylation$chr=="chr13"),]
+chr_14<-methylation[which(methylation$chr=="chr14"),]
+chr_15<-methylation[which(methylation$chr=="chr15"),]
+chr_16<-methylation[which(methylation$chr=="chr16"),]
+chr_17<-methylation[which(methylation$chr=="chr17"),]
+chr_18<-methylation[which(methylation$chr=="chr18"),]
+chr_19<-methylation[which(methylation$chr=="chr19"),]
+chr_X<-methylation[which(methylation$chr=="chrX"),]
+
+#enhancer
+e_1<-enhancer[which(enhancer$chr=="chr1"),1:4]
+e_2<-enhancer[which(enhancer$chr=="chr2"),1:4]
+e_3<-enhancer[which(enhancer$chr=="chr3"),1:4]
+e_4<-enhancer[which(enhancer$chr=="chr4"),1:4]
+e_5<-enhancer[which(enhancer$chr=="chr5"),1:4]
+e_6<-enhancer[which(enhancer$chr=="chr6"),1:4]
+e_7<-enhancer[which(enhancer$chr=="chr7"),1:4]
+e_8<-enhancer[which(enhancer$chr=="chr8"),1:4]
+e_9<-enhancer[which(enhancer$chr=="chr9"),1:4]
+e_10<-enhancer[which(enhancer$chr=="chr10"),1:4]
+e_11<-enhancer[which(enhancer$chr=="chr11"),1:4]
+e_12<-enhancer[which(enhancer$chr=="chr12"),1:4]
+e_13<-enhancer[which(enhancer$chr=="chr13"),1:4]
+e_14<-enhancer[which(enhancer$chr=="chr14"),1:4]
+e_15<-enhancer[which(enhancer$chr=="chr15"),1:4]
+e_16<-enhancer[which(enhancer$chr=="chr16"),1:4]
+e_17<-enhancer[which(enhancer$chr=="chr17"),1:4]
+e_18<-enhancer[which(enhancer$chr=="chr18"),1:4]
+e_19<-enhancer[which(enhancer$chr=="chr19"),1:4]
+e_X<-enhancer[which(enhancer$chr=="chrX"),1:4]
+
+
+#FUNCTIONS
+check<-function(start,end,meth_loc){
+  if((meth_loc >=start) & (meth_loc<=end)){
+    return(1)
+  } else {
+    return(0)
+  }
+}
+
+
+#loop through enhancers
+count<-function(methylation,enhancer){
+  c<-0
+  h<-0
+  n<-0
+  for(i in 1:nrow(enhancer)){
+    
+    for(j in 1:nrow(methylation)){
+      t<-check(enhancer[i,3],enhancer[i,4],methylation[j,3])
+      c<-c+t
+      if(c==1 & t==1){
+        new_record<-methylation[j,]
+        h<-1
+      }
+      if(c>1 & t==1){
+        new_record<-rbind(new_record,methylation[j,])
+        h<-2
+      }
+      
+    }
+    print(i)
+    if(h>0 & n==0){
+      old_record<-new_record
+      n<-n+1
+    }
+    if(h>0 & n>0){
+      old_record<-rbind(old_record,new_record)
+    }
+    c<-0
+    h<-0
+  }
+  
+  return(old_record)
+}
+
+
+main<-function(chr,e){
+  how_many<-count(chr,e)
+  #return a data_frame
+}
+
+subset_1<-main(chr_1,e_1)
+sd_1<-apply(subset_1[,5:180],2,sd,na.rm=TRUE)
+
+subset_2<-main(chr_2,e_2)
+sd_2<-apply(subset_2[,5:180],2,sd,na.rm=TRUE)
+
+subset_3<-main(chr_3,e_3)
+sd_3<-apply(subset_3[,5:180],2,sd,na.rm=TRUE)
+
+subset_4<-main(chr_4,e_4)
+sd_4<-apply(subset_4[,5:180],2,sd,na.rm=TRUE)
+
+subset_5<-main(chr_5,e_5)
+sd_5<-apply(subset_5[,5:180],2,sd,na.rm=TRUE)
+
+subset_6<-main(chr_6,e_6)
+sd_6<-apply(subset_6[,5:180],2,sd,na.rm=TRUE)
+
+subset_7<-main(chr_7,e_7)
+sd_7<-apply(subset_7[,5:180],2,sd,na.rm=TRUE)
+
+subset_8<-main(chr_8,e_8)
+sd_8<-apply(subset_8[,5:180],2,sd,na.rm=TRUE)
+
+subset_9<-main(chr_9,e_9)
+sd_9<-apply(subset_9[,5:180],2,sd,na.rm=TRUE)
+
+subset_10<-main(chr_10,e_10)
+sd_10<-apply(subset_10[,5:180],2,sd,na.rm=TRUE)
+
+subset_11<-main(chr_11,e_11)
+sd_11<-apply(subset_11[,5:180],2,sd,na.rm=TRUE)
+
+subset_12<-main(chr_12,e_12)
+sd_12<-apply(subset_12[,5:180],2,sd,na.rm=TRUE)
+
+subset_13<-main(chr_13,e_13)
+sd_13<-apply(subset_13[,5:180],2,sd,na.rm=TRUE)
+
+subset_14<-main(chr_14,e_14)
+sd_14<-apply(subset_14[,5:180],2,sd,na.rm=TRUE)
+
+subset_15<-main(chr_15,e_15)
+sd_15<-apply(subset_15[,5:180],2,sd,na.rm=TRUE)
+
+subset_16<-main(chr_16,e_16)
+sd_16<-apply(subset_16[,5:180],2,sd,na.rm=TRUE)
+
+subset_17<-main(chr_17,e_17)
+sd_17<-apply(subset_17[,5:180],2,sd,na.rm=TRUE)
+
+subset_18<-main(chr_18,e_18)
+sd_18<-apply(subset_18[,5:180],2,sd,na.rm=TRUE)
+
+subset_19<-main(chr_19,e_19)
+sd_19<-apply(subset_19[,5:180],2,sd,na.rm=TRUE)
+
+subset_X<-main(chr_X,e_X)
+sd_X<-apply(subset_X[,5:180],2,sd,na.rm=TRUE)
+#function returns NULL for subset_X
+
+
+#====================write the first file 
+sd<-c(sd_1,sd_2,sd_3,sd_4,sd_5,sd_6,sd_7,sd_8,sd_9,sd_10,sd_11,sd_12,sd_13,sd_14,sd_15,sd_16,sd_17,sd_18,sd_19)
+sd<-matrix(sd,nrow = 176,byrow = FALSE)
+row.names(sd)<-names(chr_1)[5:180]
+sd<-as.data.frame(sd)
+names(sd)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19")
+write.csv(sd,file = "sd_ratio.csv")
+
+
+
+
+#===============================chromosomal methylation rate
+#data read in 
+setwd('/Users/weilinqing/Desktop/Linqing')
+methylation<-read.csv("annotated_mm10_allCommonMeth_CtrlIsoSeparate.csv")
+#subseting
+
+chr_1<-methylation[which(methylation$chr=="chr1"),]
+chr_2<-methylation[which(methylation$chr=="chr2"),]
+chr_3<-methylation[which(methylation$chr=="chr3"),]
+chr_4<-methylation[which(methylation$chr=="chr4"),]
+chr_5<-methylation[which(methylation$chr=="chr5"),]
+chr_6<-methylation[which(methylation$chr=="chr6"),]
+chr_7<-methylation[which(methylation$chr=="chr7"),]
+chr_8<-methylation[which(methylation$chr=="chr8"),]
+chr_9<-methylation[which(methylation$chr=="chr9"),]
+chr_10<-methylation[which(methylation$chr=="chr10"),]
+chr_11<-methylation[which(methylation$chr=="chr11"),]
+chr_12<-methylation[which(methylation$chr=="chr12"),]
+chr_13<-methylation[which(methylation$chr=="chr13"),]
+chr_14<-methylation[which(methylation$chr=="chr14"),]
+chr_15<-methylation[which(methylation$chr=="chr15"),]
+chr_16<-methylation[which(methylation$chr=="chr16"),]
+chr_17<-methylation[which(methylation$chr=="chr17"),]
+chr_18<-methylation[which(methylation$chr=="chr18"),]
+chr_19<-methylation[which(methylation$chr=="chr19"),]
+chr_X<-methylation[which(methylation$chr=="chrX"),]
+
+#sum of methylation rate per chromosome
+overall_1<-apply(chr_1[,5:180],2,sd,na.rm=TRUE)
+overall_2<-apply(chr_2[,5:180],2,sd,na.rm=TRUE)
+overall_3<-apply(chr_3[,5:180],2,sd,na.rm=TRUE)
+overall_4<-apply(chr_4[,5:180],2,sd,na.rm=TRUE)
+overall_5<-apply(chr_5[,5:180],2,sd,na.rm=TRUE)
+overall_6<-apply(chr_6[,5:180],2,sd,na.rm=TRUE)
+overall_7<-apply(chr_7[,5:180],2,sd,na.rm=TRUE)
+overall_8<-apply(chr_8[,5:180],2,sd,na.rm=TRUE)
+overall_9<-apply(chr_9[,5:180],2,sd,na.rm=TRUE)
+overall_10<-apply(chr_10[,5:180],2,sd,na.rm=TRUE)
+overall_11<-apply(chr_11[,5:180],2,sd,na.rm=TRUE)
+overall_12<-apply(chr_12[,5:180],2,sd,na.rm=TRUE)
+overall_13<-apply(chr_13[,5:180],2,sd,na.rm=TRUE)
+overall_14<-apply(chr_14[,5:180],2,sd,na.rm=TRUE)
+overall_15<-apply(chr_15[,5:180],2,sd,na.rm=TRUE)
+overall_16<-apply(chr_16[,5:180],2,sd,na.rm=TRUE)
+overall_17<-apply(chr_17[,5:180],2,sd,na.rm=TRUE)
+overall_18<-apply(chr_18[,5:180],2,sd,na.rm=TRUE)
+overall_19<-apply(chr_19[,5:180],2,sd,na.rm=TRUE)
+overall_X<-apply(chr_X[,5:180],2,sd,na.rm=TRUE)
+#====================write the SECOND file 
+overall<-c(overall_1,overall_2,overall_3,overall_4,overall_5,overall_6,overall_7,overall_8,overall_9,overall_10,overall_11,overall_12,overall_13,overall_14,overall_15,overall_16,overall_17,overall_18,overall_19,overall_X)
+overall<-matrix(overall,nrow = 176,byrow = FALSE)
+row.names(overall)<-names(chr_1)[5:180]
+overall<-as.data.frame(overall)
+names(overall)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chrX")
+
+write.csv(overall,file = "overall_ratio_standrad_deviation.csv")
+
+#======================plot==============
+overall<-read.csv("overall_ratio_standrad_deviation.csv",stringsAsFactors = FALSE)
+x<-c(1:176)
+plot(overall$chr1~x,type="b")
+axis(side=1, at=seq(0, 176, by=2))
+axis(side=2, at=seq(0, 18, by=1))
+lines(x,y,col="red")
+points(x,y,col="red")
+#===========
+enhancer_file<-read.csv("sd_ratio.csv",stringsAsFactors = FALSE)
+y<-enhancer_file$chr1
+plot(y+15,type="b")
+lines(x,y+15,col="blue")
+points(x,y+15,col="blue")
+
+
+#==========corrected version of 3d plot
+setwd('/Users/weilinqing/Desktop/Linqing')
+strain<-read.csv("average_methylation_rate.csv")
+x<-c("A","B")
+library(rgl)
+plot3d(x,y=c(1:10), z=strain$A_129X1_SVJ_control,col = "red",box=TRUE)
+plot3d(x,y=c(1:10), z=strain$A_J_control,add = TRUE,col = "blue")
+
+#==============try bar plot
+library(ggplot2)
+ggplot(mtcars, aes(factor(cyl), fill=factor(am))) + geom_bar() + facet_grid(am~vs)
+
+A<-matrix(c(0.21, 0.21,0.03,0.55, 0.58, 0.09,1.30, 1.35, 0.22), nrow=3, byrow=TRUE)
+persp3d(A, col="red", alpha=0.7, xlab="fate", ylab="stage", zlab="Sensitivity", box=TRUE)
+
+
+#=================try vrmlgen
+require("vrmlgen")
+
+setwd('/Users/weilinqing/Desktop/Linqing')
+bar3d(matrix(ldeaths, nrow = 6), row.labels = 1974:1979,col.labels = month.abb, cex.lab = 1.5, ccols = rainbow(12), filename = "example5.wrl", type = "vrml", lab.vertical = TRUE,
+    htmlout = "example5.html", autoscale = TRUE, scale = 4.0)
+
+browseURL(paste("file://", file.path(getwd(), "example5.html"), sep = ""))
+
+
+data("bc_dat")
+data("bc_classes")
+cloud3d(bc_dat, labels = paste("tumor grade", as.numeric(bc_classes)),
+           vrml_showdensity = TRUE, metalabels = paste("sample", 1:nrow(bc_dat)),
+           lab.axis = paste("ICA dimension", 1:3), filename = "example2.wrl",
+           htmlout = "example2.html")
+browseURL(paste("file://", file.path(getwd(), "example2.html"), sep = ""))
+
+
+
+
+
+
+#===================example 
+require(lattice)
+require(latticeExtra)
+data(VADeaths)
+cloud(VADeaths, panel.3d.cloud = panel.3dbars,
+      xbase = 0.4, ybase = 0.4, zlim = c(0, max(VADeaths)),
+      scales = list(arrows = FALSE, just = "right"), xlab = NULL, ylab = NULL,
+      col.facet = level.colors(VADeaths, at = do.breaks(range(VADeaths), 20),
+                               col.regions = cm.colors,
+                               colors = TRUE),
+      colorkey = list(col = cm.colors, at = do.breaks(range(VADeaths), 20)),
+      screen = list(z = 40, x = -30))
+
+#=================this works=========
+c1<-strain$A_129X1_SVJ_control
+c1<-matrix(c1)
+c2<-strain$A_J_control
+c2<-matrix(c2)
+c3<-strain$AXB_10_PGNJ_control
+c3<-matrix(c3)
+c4<-strain$AXB_18_PGNJ_control
+c4<-matrix(c4)
+c<-cbind(c1,c2,c3,c4)
+
+row.names(c)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19")
+c<-as.data.frame(c)
+names(c)<-c("a","b","c","d")
+c<-as.matrix(c)
+cloud(c, panel.3d.cloud = panel.3dbars,
+      xbase = 0.5, ybase = 0.5, zlim = c(0, 50),
+      scales = list(arrows = FALSE, just = "right"), xlab = NULL, ylab = NULL,
+      col.facet = level.colors(c, at = do.breaks(range(c), 20),
+                               col.regions = cm.colors,
+                               colors = TRUE),
+      colorkey = list(col = cm.colors, at = do.breaks(range(c), 20)),
+      screen = list(z = 100, x = -60))
+#====================#==============try to generate a horizontally oriented enhancer file, trivial============================
+setwd('/Users/weilinqing/Desktop/Linqing')
+e_f2<-read.csv("sd_ratio.csv",stringsAsFactors = FALSE)
+c1<-matrix(e_f2[1:176,2],nrow = 176)
+c2<-matrix(e_f2[1:176,3],nrow = 176)
+c3<-matrix(e_f2[1:176,4],nrow = 176)
+c4<-matrix(e_f2[1:176,5],nrow = 176)
+c5<-matrix(e_f2[1:176,6],nrow = 176)
+c6<-matrix(e_f2[1:176,7],nrow = 176)
+c7<-matrix(e_f2[1:176,8],nrow = 176)
+c8<-matrix(e_f2[1:176,9],nrow = 176)
+c9<-matrix(e_f2[1:176,10],nrow = 176)
+c10<-matrix(e_f2[1:176,11],nrow = 176)
+c11<-matrix(e_f2[1:176,12],nrow = 176)
+c12<-matrix(e_f2[1:176,13],nrow = 176)
+c13<-matrix(e_f2[1:176,14],nrow = 176)
+c14<-matrix(e_f2[1:176,15],nrow = 176)
+c15<-matrix(e_f2[1:176,16],nrow = 176)
+c16<-matrix(e_f2[1:176,17],nrow = 176)
+c17<-matrix(e_f2[1:176,18],nrow = 176)
+c18<-matrix(e_f2[1:176,19],nrow = 176)
+c19<-matrix(e_f2[1:176,20],nrow = 176)
+
+all<-c(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19)
+all<-matrix(all,nrow = 19,byrow = TRUE)
+all<-as.data.frame(all)
+names(all)<-names(chr_1)[5:180]
+row.names(all)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19")
+write.csv(all,file = "horizontal_ratio_sd.csv")
+#===================3d plot standard deviation
+require(lattice)
+require(latticeExtra)
+strain2<-read.csv("horizontal_ratio_sd.csv",stringsAsFactors = FALSE)
+c1<-strain2[,2:13]
+c1<-data.matrix(c1)
+row.names(c1)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19")
+c1<-as.data.frame(c1)
+names(c1)<-c("1","2","3","4","5","6","7","8","9","10","11","12")
+c1<-as.matrix(c1)
+c1<-as.vector(c1)
+c1[is.na(c1)]<-0
+c1<-matrix(c1,nrow=19)
+
+cloud(c1, panel.3d.cloud = panel.3dbars,
+      xbase = 0.5, ybase = 0.5, zlim = c(0, 50),
+      scales = list(arrows = FALSE, just = "right"), xlab = NULL, ylab = NULL,
+      col.facet = level.colors(c1, at = do.breaks(range(c1), 20),
+                               col.regions = cm.colors,
+                               colors = TRUE),
+      colorkey = list(col = cm.colors, at = do.breaks(range(c1), 20)),
+      screen = list(z = 100, x = -60))
+
+
+#===============generate overall meth sd horizontal file ==============
+setwd('/Users/weilinqing/Desktop/Linqing')
+
+methylation<-read.csv("annotated_mm10_allCommonMeth_CtrlIsoSeparate.csv")
+chr_1<-methylation[which(methylation$chr=="chr1"),]
+
+e_f2<-read.csv("overall_ratio_standrad_deviation.csv",stringsAsFactors = FALSE)
+c1<-matrix(e_f2[1:176,2],nrow = 176)
+c2<-matrix(e_f2[1:176,3],nrow = 176)
+c3<-matrix(e_f2[1:176,4],nrow = 176)
+c4<-matrix(e_f2[1:176,5],nrow = 176)
+c5<-matrix(e_f2[1:176,6],nrow = 176)
+c6<-matrix(e_f2[1:176,7],nrow = 176)
+c7<-matrix(e_f2[1:176,8],nrow = 176)
+c8<-matrix(e_f2[1:176,9],nrow = 176)
+c9<-matrix(e_f2[1:176,10],nrow = 176)
+c10<-matrix(e_f2[1:176,11],nrow = 176)
+c11<-matrix(e_f2[1:176,12],nrow = 176)
+c12<-matrix(e_f2[1:176,13],nrow = 176)
+c13<-matrix(e_f2[1:176,14],nrow = 176)
+c14<-matrix(e_f2[1:176,15],nrow = 176)
+c15<-matrix(e_f2[1:176,16],nrow = 176)
+c16<-matrix(e_f2[1:176,17],nrow = 176)
+c17<-matrix(e_f2[1:176,18],nrow = 176)
+c18<-matrix(e_f2[1:176,19],nrow = 176)
+c19<-matrix(e_f2[1:176,20],nrow = 176)
+cX<-matrix(e_f2[1:176,21],nrow = 176)
+
+all<-c(c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,cX)
+all<-matrix(all,nrow = 20,byrow = TRUE)
+all<-as.data.frame(all)
+names(all)<-names(chr_1)[5:180]
+row.names(all)<-c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chrX")
+write.csv(all,file = "horizontal__overall_ratio_sd.csv")
